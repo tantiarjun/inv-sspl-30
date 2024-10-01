@@ -7,6 +7,42 @@
 {% block content %}
 <h1 class="mb-3">Item Stock List :</h1>
 
+<!-- Filters for date range and item selection -->
+<div class="calender-and-item-container d-flex my-4">
+
+    <div class="d-flex">
+        <div class="mx-3">
+            <label for="from_date">From Date</label>
+            <input id="from_date" type="date">
+        </div>
+
+        <div class="mx-5">
+            <label for="to_date">To Date</label>
+            <input id="to_date" type="date">
+        </div>
+    </div>
+
+    <div>
+        <label for="item">Item</label>
+        <select id="item" onclick="filterData()">
+            <option value="">All</option>
+            {% for stock in stock_data %}
+            <option value="{{ stock.item_name }}">{{ stock.item_name }}</option>
+            {% endfor %}
+        </select>
+    </div>
+</div>
+
+<!-- Search Box -->
+<nav class="search-box-container navbar bg-body-transparent">
+    <div class="container-fluid">
+        <form class="d-flex" role="search" onsubmit="event.preventDefault(); searchItem();">
+            <input class="form-control me-2" id="searchInput" type="search" placeholder="Search by Item Name" aria-label="Search">
+        </form>
+    </div>
+</nav>
+
+<!-- Stock Table -->
 <table class="table table-bordered table-hover border-secondary">
     <thead class="table-primary">
         <tr>
@@ -14,24 +50,64 @@
             <th scope="col">Item Name</th>
             <th scope="col">Total Purchased</th>
             <th scope="col">Total Sold</th>
-            <th scope="col">Available Stock</th>   
+            <th scope="col">Available Stock</th>
         </tr>
     </thead>
-    <tbody class="table-group-divider">
+    <tbody class="table-group-divider" id="stockTableBody">
         {% for stock in stock_data %}
         <tr>
-            <td>{{ forloop.counter }}</td> <!-- Automatically increment serial number -->
-            <td>{{ stock.item_name }}</td> <!-- Item name -->
-            <td>{{ stock.total_purchased }}</td> <!-- Total purchased quantity -->
-            <td>{{ stock.total_sold }}</td> <!-- Total sold quantity -->
-            <td>{{ stock.available_stock }}</td> <!-- Available stock -->
+            <td>{{ forloop.counter }}</td>
+            <td>{{ stock.item_name }}</td>
+            <td>{{ stock.total_purchased }}</td>
+            <td>{{ stock.total_sold }}</td>
+            <td>{{ stock.available_stock }}</td>
         </tr>
         {% empty %}
         <tr>
-            <td colspan="5">No Items Available</td>
+            <td colspan="6">No Items Available</td>
         </tr>
         {% endfor %}
     </tbody>
 </table>
+
+<script>
+    function filterData() {
+        const itemName = document.getElementById('item').value;
+        const tableRows = document.querySelectorAll('#stockTableBody tr');
+        
+        tableRows.forEach(row => {
+            const itemCell = row.children[1].textContent.trim();
+            
+            // Check if item matches or is "All"
+            if (
+                (itemName === '' || itemCell === itemName) 
+            ) {
+                row.style.display = '';
+            } else {
+                row.style.display = 'none';
+            }
+        });
+    }
+
+    function searchItem() {
+        const searchInput = document.getElementById('searchInput').value.toLowerCase();
+        const tableRows = document.querySelectorAll('#stockTableBody tr');
+
+        if(searchInput!==""){
+            tableRows.forEach(row => {
+                const itemCell = row.children[1].textContent.toLowerCase();
+                if (itemCell.includes(searchInput)) {
+                    row.style.display = '';
+                } else {
+                    row.style.display = 'none';
+                }
+            });
+        }
+        
+        
+
+
+    }
+</script>
 
 {% endblock %}

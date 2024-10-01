@@ -15,6 +15,7 @@ def stock_list(request):
             total_purchased=Sum('quantity')
         )['total_purchased'] or 0
         
+        
         # Total quantity sold for the item
         total_sold = SaleDetails.objects.filter(item_id=item.id).aggregate(
             total_sold=Sum('quantity')

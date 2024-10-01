@@ -5,5 +5,7 @@ urlpatterns = [
     path('stock-report/', views.stock_list , name='stock_list')
 ]
 
+
+
     
    
