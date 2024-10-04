@@ -7,23 +7,17 @@
 {% block content %}
 <h1 class="mb-3">Item Stock List :</h1>
 
-<!-- Filters for date range and item selection -->
-<div class="calender-and-item-container d-flex my-4">
 
-    <div class="d-flex">
-        <div class="mx-3">
-            <label for="from_date">From Date</label>
-            <input id="from_date" type="date">
-        </div>
+<div class=" d-flex justify-content-between my-4">
 
-        <div class="mx-5">
-            <label for="to_date">To Date</label>
-            <input id="to_date" type="date">
-        </div>
-    </div>
-
-    <div>
-        <label for="item">Item</label>
+    <!-- Search Box --> 
+    <form  role="search" onsubmit="event.preventDefault(); searchItem();">
+        <input class="form-control me-2" id="searchInput" type="search" placeholder="Search by Item Name" aria-label="Search">
+    </form>
+   
+    <!-- filte by item name   -->
+    <div class="mt-1">
+        <label for="item">Filter by Item Name </label>
         <select id="item" onclick="filterData()">
             <option value="">All</option>
             {% for stock in stock_data %}
@@ -31,16 +25,10 @@
             {% endfor %}
         </select>
     </div>
+
 </div>
 
-<!-- Search Box -->
-<nav class="search-box-container navbar bg-body-transparent">
-    <div class="container-fluid">
-        <form class="d-flex" role="search" onsubmit="event.preventDefault(); searchItem();">
-            <input class="form-control me-2" id="searchInput" type="search" placeholder="Search by Item Name" aria-label="Search">
-        </form>
-    </div>
-</nav>
+
 
 <!-- Stock Table -->
 <table class="table table-bordered table-hover border-secondary">
@@ -78,10 +66,7 @@
         tableRows.forEach(row => {
             const itemCell = row.children[1].textContent.trim();
             
-            // Check if item matches or is "All"
-            if (
-                (itemName === '' || itemCell === itemName) 
-            ) {
+            if (itemName === '' || itemCell === itemName) {
                 row.style.display = '';
             } else {
                 row.style.display = 'none';
@@ -103,10 +88,6 @@
                 }
             });
         }
-        
-        
-
-
     }
 </script>
 

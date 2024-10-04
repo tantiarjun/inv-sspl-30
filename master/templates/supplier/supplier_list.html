@@ -35,11 +35,40 @@
                       <i class="fas fa-edit"></i>
                   </button> 
               </a>
-              <a href="{% url 'delete_supplier' supplier.id %}" onclick="return confirm('Are you sure you want to delete this item?');">
+
+              {% comment %} <a href="{% url 'delete_supplier' supplier.id %}" onclick="return confirm('Are you sure you want to delete this Supplier?');">
                   <button style="margin-left:10px;" class="btn btn-danger">
                       <i class="fas fa-trash"></i>
                   </button>
-              </a>
+              </a> {% endcomment %}
+
+              
+
+              <!-- Trigger modal -->
+              <button style="margin-left:10px;" type="button" class="btn btn-danger" data-bs-toggle="modal" data-bs-target="#deleteModal{{ supplier.id }}">
+                <i class="fas fa-trash"></i>
+            </button>
+
+            <div class="modal fade" id="deleteModal{{ supplier.id }}" tabindex="-1" aria-labelledby="deleteModalLabel{{ supplier.id }}" aria-hidden="true">
+                <div class="modal-dialog">
+                    <div class="modal-content">
+                        <div class="modal-header">
+                            <h5 class="modal-title" id="deleteModalLabel{{ supplier.id }}">Confirm Delete</h5>
+                            <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                        </div>
+                        <div class="modal-body">
+                            Are you sure you want to delete this Supplier "{{ supplier.supplier_name }}"?
+                        </div>
+                        <div class="modal-footer">
+                            <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancel</button>
+                            <form action="{% url 'delete_supplier'  supplier.id %}" method="post">
+                                {% csrf_token %}
+                                <button type="submit" class="btn btn-danger">Delete</button>
+                            </form>
+                        </div>
+                    </div>
+                </div>
+            </div>
           </td>
       </tr>
   {% endfor %}

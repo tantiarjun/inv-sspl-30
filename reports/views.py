@@ -2,6 +2,10 @@ from django.shortcuts import render
 from operation.models import PurchaseDetails,SaleDetails
 from master.models import Item
 from django.db.models import Sum
+from django.db.models import Q
+from django.utils.dateparse import parse_date
+from datetime import datetime
+from django.http import JsonResponse
 
 def stock_list(request):
     # Fetch all items
@@ -37,3 +41,113 @@ def stock_list(request):
         'stock_data': stock_data,
     }
     return render(request,'stock-report/stock_list.html',context)
+
+
+def detailed_report(request):
+    items = Item.objects.filter(status=1)
+    
+    # Get query params
+    item_name = request.GET.get('item', '')
+    from_date = request.GET.get('fromdate', '1900-01-01')  # Default to earliest date
+    to_date = request.GET.get('todate', str(datetime.now().date()))  # Default to current date
+    report_type = request.GET.get('type', 'purchase')  # Default to purchase type
+
+    # Convert string to date
+    from_date = parse_date(from_date) or datetime.strptime('1900-01-01', '%Y-%m-%d').date()
+    to_date = parse_date(to_date) or datetime.now().date()
+
+    stock_data = []
+
+    if report_type == 'purchase':
+        # Fetch purchase data
+        purchases = PurchaseDetails.objects.filter(datetime__date__range=[from_date, to_date]).order_by('-datetime')
+
+        if item_name:
+            purchases = purchases.filter(item_id__item_name__icontains=item_name)
+
+        for purchase in purchases:
+            stock_data.append({
+                'item_name': purchase.item_id.item_name,  
+                'quantity': purchase.quantity,
+                'total': purchase.amount,
+                'created_at': purchase.datetime,
+                'supplier_or_customer': purchase.purchase_master_id.supplier_id.supplier_name
+            })
+
+    elif report_type == 'sales':
+        # Fetch sales data
+        sales = SaleDetails.objects.filter(datetime__date__range=[from_date, to_date]).order_by('-datetime')
+
+        if item_name:
+            sales = sales.filter(item_id__item_name__icontains=item_name)
+
+        for sale in sales:
+            stock_data.append({
+                'item_name': sale.item_id.item_name,
+                'quantity': sale.quantity,
+                'total': sale.amount,
+                'created_at': sale.datetime,
+                'supplier_or_customer': sale.sale_master_id.customer_id.supplier_name
+            })
+
+    if request.headers.get('x-requested-with') == 'XMLHttpRequest':
+        return JsonResponse({'stock_data': stock_data})
+
+    # Otherwise, render the template normally
+    context = {
+        'stock_data': stock_data,
+        'items': items
+    }
+    
+    # print(stock_data)
+
+    return render(request, 'detailed-report/detailed_report.html', context)
+
+
+# def detailed_report(request):
+#     items = Item.objects.filter(status=1)
+#     Purchase_details = PurchaseDetails.objects.filter(status=1)
+    
+#     context = {
+#         'items': items,
+#         'Purchase_details': Purchase_details,
+#     }
+    
+#     return render(request,'detailed-report/detailed_report.html',context)
+    
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
